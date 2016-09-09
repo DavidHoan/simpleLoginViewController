@@ -39,9 +39,11 @@
     return YES;
 }
 
-- (UIInterfaceOrientation) preferredInterfaceOrientationForPresentation {
-    return UIInterfaceOrientationPortrait;
+- (BOOL)shouldAutorotate
+{
+    return NO;
 }
+
 
 - (void) initBacground
 {
@@ -115,8 +117,6 @@
      [inputText addSubview:inputbg];
      */
     
-    //int paddingLeft = (int)(screenW/2 - inputSize.width/2);
-    
     UITextField *inputTextField = [[UITextField alloc] initWithFrame:CGRectMake(textPadding, 0, inputSize.width-2*textPadding, inputSize.height)];
     inputTextField.textAlignment = NSTextAlignmentCenter;
     inputTextField.placeholder = holderStr;
@@ -171,5 +171,49 @@
         }
     }
 }
+
+
+
+#pragma UITextField move up when keyboard present
+
+/*
+ *  Delegate thằng input nào muốn đẩy
+ */
+
+- (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event {
+    [self.view endEditing:YES]; // dismiss the keyboard
+    [super touchesBegan:touches withEvent:event];
+}
+
+- (void)textFieldDidBeginEditing:(UITextField *)textField{
+    NSLog(@"textViewDidBeginEditing");
+    [self animateTextField: textField up: YES];
+}
+
+- (void) textFieldDidEndEditing:(UITextField *)textField {
+    NSLog(@"textViewDidEndEditing : %@", textField.text);
+    [self animateTextField: textField up: NO];
+}
+
+- (void) animateTextField: (UITextField*) textField up: (BOOL) up
+{
+    const int movementDistance = 120; // tweak as needed
+    const float movementDuration = 0.3f; // tweak as needed
+    
+    int movement = (up ? -movementDistance : movementDistance);
+    
+    [UIView beginAnimations: @"anim" context: nil];
+    [UIView setAnimationBeginsFromCurrentState: YES];
+    [UIView setAnimationDuration: movementDuration];
+    
+    if ((NSFoundationVersionNumber <= NSFoundationVersionNumber_iOS_7_1) && UIInterfaceOrientationIsLandscape([UIApplication sharedApplication].statusBarOrientation)) {
+        self.view.frame = CGRectOffset(self.view.frame, movement, 0);
+    } else {
+        self.view.frame = CGRectOffset(self.view.frame, 0, movement);
+    }
+    
+    [UIView commitAnimations];
+}
+
 
 @end
